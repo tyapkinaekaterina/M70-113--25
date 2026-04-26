@@ -24,4 +24,9 @@ python -m src.db
 М7О-113БВ-25
 Python
 https://gitlab.mai.ru/ESTyapkina/pioa_task1
->>>>>>> 6748a1737613017dcd57b19c8dbb8d1320a5808e
+>>>>>>> 6748a1737613017dcd57b19c8dbb8d1320a5808>>
+#Лабораторна работа 3:
+1.Перевела весь проект в ООП-сделала отдельный класс StudentTabl,чтобы не было путаницы из функций
+2.Написала тесты, они в папке tests/
+3.Чтобы их запустить, надо ввести в консоли:python -m unittest discover tests 
+
