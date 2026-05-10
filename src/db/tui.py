@@ -1,5 +1,8 @@
 
-from scr.db.backend.memory import create_record, select_record, update_record, delete_record
+from .backend.memory import StudentTable
+
+# Создаем объект базы данных один раз в начале
+db = StudentTable()
 
 
 def _print_menu() -> None:
@@ -49,7 +52,7 @@ def _add_student() -> None:
     sex = input("sex: ").strip()
 
     try:
-        record = create_record(student_id, first_name, second_name, age, sex)
+        record = db.create_record(student_id, first_name, second_name, age, sex)
         print(f"Запись добавлена: {record}")
     except ValueError as exc:
         print(f"Ошибка: {exc}")
@@ -57,7 +60,7 @@ def _add_student() -> None:
 
 def _show_all_students() -> None:
     print("\nСписок записей")
-    _print_records(select_record())
+    _print_records(db.select_record())
 
 
 def _find_students_by_filter() -> None:
@@ -68,7 +71,7 @@ def _find_students_by_filter() -> None:
     age = _read_optional_int("age: ")
     sex = input("sex: ").strip() or None
 
-    records = select_record(
+    records = db.select_record(
         student_id=student_id,
         first_name=first_name,
         second_name=second_name,
@@ -82,7 +85,7 @@ def _update_student() -> None:
     print("\nИзменение записи (Enter = оставить без изменений)")
     student_id = _read_int("Введите id студента для изменения: ")
     
-    existing = select_record(student_id=student_id)
+    existing = db.select_record(student_id=student_id)
     if not existing:
         print("Ошибка: Студент с таким id не найден.")
         return
@@ -93,7 +96,7 @@ def _update_student() -> None:
     sex = input("Новый sex: ").strip() or None
     
     try:
-        updated = update_record(
+        updated = db.update_record(
             student_id=student_id,
             first_name=first_name,
             second_name=second_name,
@@ -110,7 +113,7 @@ def _delete_student() -> None:
     student_id = _read_int("Введите id студента для удаления: ")
     
     try:
-        deleted = delete_record(student_id=student_id)
+        deleted = db.delete_record(student_id=student_id)
         print(f"Запись успешно удалена: {deleted}")
     except ValueError as exc:
         print(f"Ошибка при удалении: {exc}")

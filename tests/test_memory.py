@@ -83,3 +83,36 @@ class TestMemory(unittest.TestCase):
             with self.subTest(case=case["name"]):
                 records = self.student_table.select_record(**case["filters"])
                 self.assertEqual(records, case["expected"])
+def test_select_record(self):
+        # Сначала наполняем таблицу данными
+        test_datas = [
+            (1, "John", "Doe", 20, "M"),
+            (2, "Jane", "Smith", 22, "F"),
+            (3, "Alice", "Johnson", 19, "F"),
+        ]
+        for data in test_datas:
+            self.student_table.create_record(*data)
+
+        # Проверяем разные варианты поиска
+        cases = [
+            {
+                "name": "Выбор без фильтров (все)",
+                "filters": {},
+                "expected": test_datas,
+            },
+            {
+                "name": "Фильтр по ID",
+                "filters": {"student_id": 1},
+                "expected": [test_datas[0]],
+            },
+            {
+                "name": "Фильтр по полу",
+                "filters": {"sex": "F"},
+                "expected": [test_datas[1], test_datas[2]],
+            },
+        ]
+
+        for case in cases:
+            with self.subTest(case=case["name"]):
+                records = self.student_table.select_record(**case["filters"])
+                self.assertEqual(records, case["expected"])
