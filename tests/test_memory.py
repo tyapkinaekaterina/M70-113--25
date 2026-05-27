@@ -176,4 +176,5 @@ class TestMemory(unittest.TestCase):
         # В базе остались Jane (F) и Alice (F), обе должны удалиться
         deleted_sex = self.student_table.delete_record(sex="F")
         self.assertEqual(deleted_sex, 2)
-        self.assertEqual(len(self.student_table.select_record()), 0)  
+        self.assertEqual(len(self.student_table.select_record()), 0) 
+ 

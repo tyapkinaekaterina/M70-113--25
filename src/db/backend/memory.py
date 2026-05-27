@@ -158,3 +158,4 @@ class StudentTable:
         self._student = remaining_students
         deleted_count = initial_count - len(self._student)
         return deleted_count
+    
