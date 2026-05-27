@@ -20,14 +20,4 @@ class TestTUI(unittest.TestCase):
         self.app.table.create_record(2, "Петр", "Петров", 25, "M")
         self.app._handle_select_records()
         self.assertTrue(True)
-    def _handle_update_record(self):
-        sid = int(input("Введите ID для обновления: "))
-        # Упрощенно: обновляем только возраст
-        new_age = int(input("Введите новый возраст: "))
-        self.table.update_record(sid, age=new_age)
-        print("Запись обновлена.")
-
-    def _handle_delete_record(self):
-        sid = int(input("Введите ID для удаления: "))
-        self.table.delete_record(sid)
-        print("Запись удалена.")    
+    

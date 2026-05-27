@@ -70,25 +70,4 @@ class StudentTable:
 
             result.append(record)      
         return result
-    def update_record(self, student_id: int, **kwargs) -> StudentRecord:
-        for i, record in enumerate(self._student):
-            if record[0] == student_id:
-                # Создаем новую запись на основе старой, обновляя нужные поля
-                updated = list(record)
-                if 'first_name' in kwargs: updated[1] = kwargs['first_name']
-                if 'second_name' in kwargs: updated[2] = kwargs['second_name']
-                if 'age' in kwargs: 
-                    if kwargs['age'] < 0: raise InvalidAgeError("Отрицательный возраст.")
-                    updated[3] = kwargs['age']
-                if 'sex' in kwargs: updated[4] = kwargs['sex']
-                
-                self._student[i] = tuple(updated)
-                return self._student[i]
-        raise ValueError(f"Запись с id={student_id} не найдена.")
-
-    def delete_record(self, student_id: int) -> None:
-        for i, record in enumerate(self._student):
-            if record[0] == student_id:
-                self._student.pop(i)
-                return
-        raise ValueError(f"Запись с id={student_id} не найдена.")
+    
