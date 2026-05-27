@@ -124,4 +124,56 @@ class TestMemory(unittest.TestCase):
             ):
                 records = self.student_table.select_record(**case["filters"])
                 self.assertEqual(records, case["expected"])
-      
+
+    def test_update_record(self):
+        """Тестирование функции update_record с различными сценариями."""
+        # Создаем базовую запись для тестов обновления
+        self.student_table.create_record(1, "John", "Doe", 20, "M")
+
+        # 1. Тест успешного частичного обновления (имя и возраст)
+        updated = self.student_table.update_record(student_id=1, first_name="Ekaterina", age=21)
+        self.assertEqual(updated, (1, "Ekaterina", "Doe", 21, "M"))
+        
+        # Проверяем, что изменения применились в самой базе
+        records = self.student_table.select_record(student_id=1)
+        self.assertEqual(records[0], (1, "Ekaterina", "Doe", 21, "M"))
+
+        # 2. Тест обновления несуществующего студента (должен вернуть None)
+        not_found = self.student_table.update_record(student_id=999, first_name="Ghost")
+        self.assertIsNone(not_found)
+
+        # 3. Тест вызова ошибки при попытке поставить отрицательный возраст
+        with self.assertRaises(InvalidAgeError) as context:
+            self.student_table.update_record(student_id=1, age=-5)
+        self.assertEqual(str(context.exception), "Поле age не может быть отрицательным.")
+
+    def test_delete_record(self):
+        """Тестирование функции delete_record с использованием различных фильтров."""
+        # Заполняем базу тестовыми данными
+        test_datas = [
+            (1, "John", "Doe", 20, "M"),
+            (2, "Jane", "Smith", 22, "F"),
+            (3, "Alice", "Johnson", 19, "F"),
+        ]
+        for data in test_datas:
+            self.student_table.create_record(*data)
+
+        # 1. Безопасность: если фильтры не переданы, ничего не удаляем
+        deleted_none = self.student_table.delete_record()
+        self.assertEqual(deleted_none, 0)
+        self.assertEqual(len(self.student_table.select_record()), 3)
+
+        # 2. Удаление по конкретному фильтру (например, по ID)
+        deleted_id = self.student_table.delete_record(student_id=1)
+        self.assertEqual(deleted_id, 1)
+        
+        # Проверяем, что в базе осталось 2 записи и ID 1 там больше нет
+        remaining = self.student_table.select_record()
+        self.assertEqual(len(remaining), 2)
+        self.assertNotIn((1, "John", "Doe", 20, "M"), remaining)
+
+        # 3. Удаление по другому фильтру (например, по полу 'F')
+        # В базе остались Jane (F) и Alice (F), обе должны удалиться
+        deleted_sex = self.student_table.delete_record(sex="F")
+        self.assertEqual(deleted_sex, 2)
+        self.assertEqual(len(self.student_table.select_record()), 0)  
