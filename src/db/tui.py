@@ -1,27 +1,44 @@
-import pytest
-import sys
-from unittest.mock import patch
+from .backend.memory import StudentTable
+from .backend.errors import StudentTableError
 
-def test_tui_execute_pure_file():
-    # Готовим вводы пользователя, чтобы пройтись по твоему меню от 1 до 68 строки
-    inputs = [
-        "abc", "1", "10", "Ivan", "Ivanov", "abc", "20", "M", # Ошибки ввода чисел + пункт 1
-        "2",                                                 # Пункт 2: Показать всех
-        "3", "", "Ivan", "", "", "",                         # Пункт 3: Поиск
-        "4", "10", "", "", "", "",                           # Пункт 4: Изменение
-        "5", "10",                                           # Пункт 5: Удаление
-        "99",                                                # Неизвестный пункт
-        "0"                                                  # Выход
-    ]
+def main_menu():
+    db = StudentTable()
 
-    # Сбрасываем модуль из кэша, чтобы Python прочитал его заново
-    sys.modules.pop('src.db.tui', None)
+    while True:
+        print("\n1. Добавить 2. Показать 3. Обновить 4. Удалить 0. Выход")
+        choice = input("Действие: ").strip()
 
-    # Перехватываем input ДО импорта файла!
-    with patch('builtins.input', side_effect=inputs):
         try:
-            import src.db.tui
-        except SystemExit:
-            pass  # На случай, если в конце кода стоит exit()
-        except Exception:
-            pass
+            if choice == "1":
+                db.create_record(
+                    int(input("ID: ")),
+                    input("Имя: "),
+                    input("Фамилия: "),
+                    int(input("Возраст: ")),
+                    input("Пол: "),
+                )
+            elif choice == "2":
+                for r in db.select_record():
+                    print(r)
+            elif choice == "3":
+                db.update_record(
+                    int(input("ID: ")),
+                    input("Имя: "),
+                    input("Фамилия: "),
+                    int(input("Возраст: ")),
+                    input("Пол: "),
+                )
+            elif choice == "4":
+                db.delete_record(int(input("ID для удаления: ")))
+            elif choice == "0":
+                print("До свидания!")
+                break
+        except (ValueError, StudentTableError) as e:
+            print(f"Ошибка: {e}")
+
+def run():
+    """Эта функция нужна для теста test_main.py"""
+    main_menu()
+
+if __name__ == "__main__":
+    run()

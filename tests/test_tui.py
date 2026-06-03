@@ -1,43 +1,53 @@
-import pytest
-import sys
+import unittest
 from unittest.mock import patch
+from src.db.tui import main_menu
 
-def test_tui_execute_pure_file():
-    # Основной поток: проверяем добавление, просмотр, поиск, изменение, удаление
-    inputs = [
-        "abc", "1", "10", "Ivan", "Ivanov", "abc", "20", "M",
-        "2",
-        "3", "", "Ivan", "", "", "",
-        "4", "10", "", "", "", "",
-        "5", "10",
-        "99",
-        "0"
-    ]
+class TestTUI(unittest.TestCase):
 
-    sys.modules.pop('src.db.tui', None)
+    def test_full_coverage(self):
+        # Этот список полностью покрывает все ветки if/elif/else и блоки ошибок
+        inputs = [
+            "1",        # Выбор: Добавить
+            "1",        # ID
+            "Ivan",     # Имя
+            "Ivanov",   # Фамилия
+            "20",       # Возраст
+            "M",        # Пол
+            "1",        # Выбор: Добавить снова (проверить ошибку дубликата ID)
+            "1",        # Тот же ID
+            "Masha",    # Имя
+            "Sidorova", # Фамилия
+            "22",       # Возраст
+            "W",        # Пол
+            "1",        # Выбор: Добавить (проверить ошибку некорректного возраста)
+            "2",        # ID
+            "Petya",    # Имя
+            "Petrov",   # Фамилия
+            "-5",       # Отрицательный возраст -> вызовет InvalidAgeError
+            "M",        # Пол
+            "1",        # Выбор: Добавить (проверить ValueError на буквах вместо цифр)
+            "invalid",  # Буквы вместо ID -> вызовет ValueError
+            "2",        # Выбор: Показать базу в консоли
+            "3",        # Выбор: Обновить
+            "1",        # ID для обновления
+            "Petr",     # Новое имя
+            "Petrov",   # Новая фамилия
+            "21",       # Новой возраст
+            "M",        # Новый пол
+            "4",        # Выбор: Удалить
+            "1",        # ID для удаления
+            "999",      # Неверный пункт меню (уйдет в else/новую итерацию)
+            "0",        # Выбор: Выход
+        ]
 
-    with patch('builtins.input', side_effect=inputs):
-        try:
-            import src.db.tui
-        except (SystemExit, Exception):
-            pass
+        # Железно перехватываем input и print через контекстный менеджер
+        with patch("builtins.input", side_effect=inputs) as mock_input, \
+             patch("builtins.print") as mock_print:
+            
+            main_menu()
 
-def test_tui_additional_scenarios():
-    # Второй запуск с другими данными, чтобы зайти в пропущенные блоки except и if
-    # Передаем пустые поля при поиске, удалении и некорректные команды
-    inputs = [
-        "2",        # Показ (если база вернет пустоту или ошибку)
-        "3", "", "", "", "", "", # Поиск со всеми пустыми параметрами
-        "4", "999", "", "", "", "", # Изменение несуществующего ID
-        "5", "999", # Удаление несуществующего ID
-        "1", "invalid_id", # Слом ввода на первом этапе добавления
-        "0"         # Выход
-    ]
+            # Проверяем финальный аккорд
+            mock_print.assert_any_call("До свидания!")
 
-    sys.modules.pop('src.db.tui', None)
-
-    with patch('builtins.input', side_effect=inputs):
-        try:
-            import src.db.tui
-        except (SystemExit, Exception):
-            pass
+if __name__ == "__main__":
+    unittest.main()
