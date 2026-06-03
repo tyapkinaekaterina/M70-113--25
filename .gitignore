@@ -1,0 +1,21 @@
+# Python компиляция и кэш
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Тесты и покрытие
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Локальные настройки редактора и окружения
+.vscode/
+.idea/
+*.env
+.venv/
+venv/
+
+# Файлы баз данных (чтобы локальные тесты не летели на GitHub)
+*.json
