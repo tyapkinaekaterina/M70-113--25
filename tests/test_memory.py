@@ -4,6 +4,7 @@ from src.db.backend.memory import MemoryDatabase
 from src.db.backend.errors import TableNotFoundError
 from src.db.backend.table import Table
 
+
 class TestMemoryDatabase(unittest.TestCase):
     def setUp(self) -> None:
         self.db = MemoryDatabase()
@@ -22,6 +23,7 @@ class TestMemoryDatabase(unittest.TestCase):
     def test_load_table_not_found(self) -> None:
         with self.assertRaises(TableNotFoundError):
             self.db._load_table("absent_table")
+
 
 if __name__ == "__main__":
     unittest.main()

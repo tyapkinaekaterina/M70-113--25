@@ -4,13 +4,14 @@ import json
 from pathlib import Path
 
 from src.db.backend.errors import (
-    TableNotFoundError, 
-    TableAlreadyExistsError, 
-    MissingColumnError, 
-    UnknownColumnError, 
-    InvalidStorageDataError
+    TableNotFoundError,
+    TableAlreadyExistsError,
+    MissingColumnError,
+    UnknownColumnError,
+    InvalidStorageDataError,
 )
 from src.db.backend.file import FileDatabase
+
 
 class TestFileDatabase(unittest.TestCase):
     def test_data_is_saved_between_instances(self) -> None:
@@ -71,11 +72,11 @@ class TestFileDatabase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             db = FileDatabase(directory)
             db.create_table("students", ("id", "name"))
-            
+
             file_path = Path(directory) / "students.json"
             with file_path.open("w", encoding="utf-8") as f:
                 f.write("Сломанный НЕ-JSON текст")
-                
+
             with self.assertRaises(InvalidStorageDataError):
                 db.select_records("students")
 
@@ -83,25 +84,27 @@ class TestFileDatabase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             db = FileDatabase(directory)
             db.create_table("students", ("id", "name"))
-            
+
             file_path = Path(directory) / "students.json"
             with file_path.open("w", encoding="utf-8") as f:
                 json.dump({"bad_key": 123}, f)
-                
+
             with self.assertRaises(InvalidStorageDataError):
                 db.select_records("students")
 
+
 if __name__ == "__main__":
     unittest.main()
+
     def test_update_records(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             db = FileDatabase(directory)
             db.create_table("students", ("student_id", "name"))
             db.insert_record("students", {"student_id": 1, "name": "Иван"})
-            
+
             # Обновляем имя для студента с id=1
             db.update_records("students", {"name": "Пётр"}, student_id=1)
-            
+
             records = db.select_records("students")
             self.assertEqual(records, [{"student_id": 1, "name": "Пётр"}])
 
@@ -110,9 +113,9 @@ if __name__ == "__main__":
             db = FileDatabase(directory)
             db.create_table("students", ("student_id", "name"))
             db.insert_record("students", {"student_id": 1, "name": "Иван"})
-            
+
             # Удаляем запись
             db.delete_records("students", student_id=1)
-            
+
             records = db.select_records("students")
             self.assertEqual(records, [])

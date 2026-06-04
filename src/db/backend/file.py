@@ -20,9 +20,7 @@ class FileDatabase(Database):
     def _load_table(self, table_name: str) -> Table:
         table_path = self._get_table_path(table_name)
         if not table_path.exists():
-            raise TableNotFoundError(
-                f"Таблица '{table_name}' не существует."
-            )
+            raise TableNotFoundError(f"Таблица '{table_name}' не существует.")
 
         try:
             with table_path.open("r", encoding="utf-8") as file:
@@ -56,24 +54,24 @@ class FileDatabase(Database):
 
     def _deserialize_table(self, data: dict) -> Table:
         if "columns" not in data or "records" not in data:
-            raise InvalidStorageDataError(
-                "Файл таблицы имеет некорректную структуру."
-            )
+            raise InvalidStorageDataError("Файл таблицы имеет некорректную структуру.")
 
         columns = tuple(data["columns"])
         records = data.get("records", [])
         return Table(columns, records)
+
     def update_records(self, table_name: str, data: dict, **filters) -> None:
         """Обновляет записи в таблице, соответствующие фильтрам."""
         table = self._load_table(table_name)
-        
+
         # Загружаем текущие данные из файла JSON
         records = self._deserialize_table(table_name)
-        
+
         # Валидируем передаваемые для обновления поля через класс Table
         for column in data.keys():
             if column not in table.columns:
                 from src.db.backend.errors import UnknownColumnError
+
                 raise UnknownColumnError(f"Колонка {column} не существует")
 
         updated_count = 0
@@ -88,15 +86,16 @@ class FileDatabase(Database):
 
     def delete_records(self, table_name: str, **filters) -> None:
         """Удаляет записи из таблицы, соответствующие фильтрам."""
-        self._load_table(table_name) # Проверяем, существует ли таблица
-        
+        self._load_table(table_name)  # Проверяем, существует ли таблица
+
         records = self._deserialize_table(table_name)
-        
+
         # Оставляем только те записи, которые НЕ подходят под фильтры
         filtered_records = [
-            record for record in records 
+            record
+            for record in records
             if not all(record.get(k) == v for k, v in filters.items())
         ]
-        
+
         # Перезаписываем файл JSON
         self._serialize_table(table_name, filtered_records)
