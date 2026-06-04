@@ -1,4 +1,3 @@
-# src/db/backend/table.py
 from typing import Any
 
 from .errors import MissingColumnError, UnknownColumnError

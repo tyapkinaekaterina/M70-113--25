@@ -63,3 +63,40 @@ class FileDatabase(Database):
         columns = tuple(data["columns"])
         records = data.get("records", [])
         return Table(columns, records)
+    def update_records(self, table_name: str, data: dict, **filters) -> None:
+        """Обновляет записи в таблице, соответствующие фильтрам."""
+        table = self._load_table(table_name)
+        
+        # Загружаем текущие данные из файла JSON
+        records = self._deserialize_table(table_name)
+        
+        # Валидируем передаваемые для обновления поля через класс Table
+        for column in data.keys():
+            if column not in table.columns:
+                from src.db.backend.errors import UnknownColumnError
+                raise UnknownColumnError(f"Колонка {column} не существует")
+
+        updated_count = 0
+        for record in records:
+            # Проверяем, подходит ли запись под фильтры
+            if all(record.get(k) == v for k, v in filters.items()):
+                record.update(data)
+                updated_count += 1
+
+        # Сохраняем обновленный массив обратно в файл
+        self._serialize_table(table_name, records)
+
+    def delete_records(self, table_name: str, **filters) -> None:
+        """Удаляет записи из таблицы, соответствующие фильтрам."""
+        self._load_table(table_name) # Проверяем, существует ли таблица
+        
+        records = self._deserialize_table(table_name)
+        
+        # Оставляем только те записи, которые НЕ подходят под фильтры
+        filtered_records = [
+            record for record in records 
+            if not all(record.get(k) == v for k, v in filters.items())
+        ]
+        
+        # Перезаписываем файл JSON
+        self._serialize_table(table_name, filtered_records)

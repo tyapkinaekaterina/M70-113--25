@@ -1,11 +1,22 @@
-class StudentTableError(Exception):
-    """Базовый класс для всех ошибок таблицы"""
-    pass
+class DatabaseError(Exception):
+    """Базовый класс для ошибок базы данных."""
 
-class InvalidAgeError(StudentTableError):
-    """Ошибка: возраст не может быть меньше 0"""
-    pass
+class TableAlreadyExistsError(DatabaseError):
+    """Ошибка, возникающая при попытке создать уже существующую таблицу."""
 
-class DuplicateIDError(StudentTableError):
-    """Ошибка: такой ID уже занят"""
-    pass
+class TableNotFoundError(DatabaseError):
+    """Ошибка, возникающая при обращении к несуществующей таблице."""
+
+class MissingColumnError(DatabaseError):
+    """Ошибка, возникающая при отсутствии обязательного поля в записи."""
+
+class UnknownColumnError(DatabaseError):
+    """Ошибка, возникающая при использовании поля, которого нет в схеме таблицы."""
+
+class InvalidStorageDataError(DatabaseError):
+    """Ошибка, возникающая при чтении повреждённых данных из файла."""
+
+# Оставляем старые ошибки для совместимости, если они используются в TUI
+class StudentTableError(Exception): pass
+class DuplicateIDError(StudentTableError): pass
+class InvalidAgeError(StudentTableError): pass

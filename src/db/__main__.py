@@ -1,5 +1,5 @@
+import sys
 from src.db.tui import run
 
 if __name__ == "__main__":
     run()
-

@@ -1,32 +1,25 @@
+# src/db/backend/memory.py
+from .database import Database
+from .errors import TableNotFoundError
+from .table import Table
 
-from .errors import DuplicateIDError, InvalidAgeError
 
-type StudentRecord = tuple[int, str, str, int, str]
+class MemoryDatabase(Database):
+    """База данных, хранящая таблицы в оперативной памяти."""
 
-class StudentTable:
     def __init__(self) -> None:
-        self._student: list[StudentRecord] = []
+        self.tables: dict[str, Table] = {}
 
-    def create_record(self, student_id, first_name, second_name, age, sex):
-        if age < 0:
-            raise InvalidAgeError("Поле age не может быть отрицательным.")
-        if any(rec[0] == student_id for rec in self._student):
-            raise DuplicateIDError(f"Запись с id={student_id} уже существует.")
+    def _table_exists(self, table_name: str) -> bool:
+        return table_name in self.tables
 
-        new_record = (student_id, first_name.strip(), second_name.strip(), age, sex.strip())
-        self._student.append(new_record)
-        return new_record
+    def _load_table(self, table_name: str) -> Table:
+        if table_name not in self.tables:
+            raise TableNotFoundError(
+                f"Таблица '{table_name}' не существует."
+            )
 
-    def select_record(self, student_id=None, first_name=None, second_name=None, age=None, sex=None):
-        if all(v is None for v in [student_id, first_name, second_name, age, sex]):
-            return self._student.copy()
-        
-        result = []
-        for record in self._student:
-            if student_id is not None and record[0] != student_id: continue
-            if first_name is not None and record[1] != first_name: continue
-            if second_name is not None and record[2] != second_name: continue
-            if age is not None and record[3] != age: continue
-            if sex is not None and record[4] != sex: continue
-            result.append(record)
-        return result
+        return self.tables[table_name]
+
+    def _save_table(self, table_name: str, table: Table) -> None:
+        self.tables[table_name] = table
